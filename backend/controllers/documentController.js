@@ -5,6 +5,8 @@ import { extractTextFromPDF } from "../utils/pdfParser.js"
 import { chunkText } from "../utils/textChunker.js"
 import fs from "fs/promises"
 import mongoose from "mongoose"
+import path from "path";
+
 
 
 // upload pdf document
@@ -25,7 +27,10 @@ const uploadDocument = async (req, res, next) => {
         }
         // construct the URl to upload file
         // const baseUrl = `http://localhost:${process.env.PORT || 8000}`;
-        const baseUrl= process.env.BASE_URL;
+        const baseUrl = process.env.BASE_URL;
+        if (!process.env.BASE_URL) {
+            throw new Error("BASE_URL is not defined in environment variables");
+        }
 
         const fileUrl = `${process.env.BASE_URL}/uploads/documents/${req.file.filename}`;
 
