@@ -23,8 +23,8 @@ const uploadDocument = async (req, res, next) => {
             await fs.unlink(req.file.path);
             return res.status(400).json({ message: "Please provive document title" });
         }
-        // construct the URl to upload file
-        const baseUrl = "https://learnix-ai-learning-app.onrender.com";
+        // construct the URl to upload filehttps://learnix-ai-learning-app.onrender.com
+        const baseUrl = "https://learnix-ai-learning-app.vercel.app";
         const fileUrl = `${baseUrl}/uploads/documents/${req.file.filename}`;
 
         // create document
