@@ -45,7 +45,7 @@ const DocumentDetailsPage = () => {
       return filePath;
     }
 
-    const baseUrl=process.env.REACT_APP_API_URL || "http://localhost:8000";
+    const baseUrl="https://learnix-ai-learning-app.onrender.com";
     return `${baseUrl}${filePath.startsWith('/') ? '': '/'}${filePath}`;
   }
 

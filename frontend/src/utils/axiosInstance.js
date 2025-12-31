@@ -2,7 +2,7 @@ import axios from "axios";
 import { BASE_URL } from "./apiPaths.js";
 
 const axiosInstance=axios.create({
-    baseURL:"https://learnix-ai-learning-app.onrender.com",
+    baseURL:BASE_URL,
     timeout:80000,
     headers:{
         "Content-Type":"application/json",
