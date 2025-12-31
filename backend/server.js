@@ -61,10 +61,10 @@ app.use("/uploads",express.static(path.join(__dirname,"uploads")));
 
 
 
-// app.get("/", (req, res) => {
-//   res.sendFile(path.resolve(_dirname,"frontend","dist","index.html"));
+app.get("/", (req, res) => {
+  res.json({"success": true});
   
-// });
+});
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 8000;

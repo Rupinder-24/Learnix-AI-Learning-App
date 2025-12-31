@@ -5,8 +5,6 @@ import { extractTextFromPDF } from "../utils/pdfParser.js"
 import { chunkText } from "../utils/textChunker.js"
 import fs from "fs/promises"
 import mongoose from "mongoose"
-import path from "path";
-
 
 
 // upload pdf document
@@ -26,13 +24,8 @@ const uploadDocument = async (req, res, next) => {
             return res.status(400).json({ message: "Please provive document title" });
         }
         // construct the URl to upload file
-        // const baseUrl = `http://localhost:${process.env.PORT || 8000}`;
-        const baseUrl = process.env.BASE_URL;
-        if (!process.env.BASE_URL) {
-            throw new Error("BASE_URL is not defined in environment variables");
-        }
-
-        const fileUrl = `https://learnix-ai-learning-app.vercel.app/uploads/documents/${req.file.filename}`;
+        const baseUrl = `https://localhost:${process.env.PORT || 8000}`;
+        const fileUrl = `${baseUrl}/uploads/documents/${req.file.filename}`;
 
         // create document
         const document = await Document.create({
@@ -218,7 +211,14 @@ const deleteDocument = async (req, res, next) => {
         }
 
         // Delete file from filesystem
-        await fs.unlink(document.filePath).catch(() => { });
+        // await fs.unlink(document.filePath).catch(() => { });
+        // ✅ Convert URL → filesystem path
+    if (document.filePath && process.env.BASE_URL) {
+      const relativePath = document.filePath.replace(process.env.BASE_URL, "");
+      const absolutePath = path.join(process.cwd(), relativePath);
+
+      await fs.unlink(absolutePath).catch(() => {});
+    }
         // Delete related data (VERY IMPORTANT)
         await Flashcard.deleteMany({ documentId: document._id });
         await Quiz.deleteMany({ documentId: document._id });
