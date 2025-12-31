@@ -4,8 +4,7 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon server.js",
-    "build": "npm install && npm install build --prefix frontend && npm run build --prefix frontend",
+    "dev": "nodemon server.js",    
     "start": "node server.js"
     
   },
