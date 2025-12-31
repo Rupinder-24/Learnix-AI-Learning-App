@@ -62,7 +62,7 @@ app.use("/uploads",express.static(path.join(__dirname,"uploads")));
 
 
 app.get("/", (req, res) => {
-  res.json({"success": true});
+  res.json({success: true});
   
 });
 app.use(errorHandler);
