@@ -24,7 +24,9 @@ const uploadDocument = async (req, res, next) => {
             return res.status(400).json({ message: "Please provive document title" });
         }
         // construct the URl to upload file
-        const baseUrl = `http://localhost:${process.env.PORT || 8000}`;
+        // const baseUrl = `http://localhost:${process.env.PORT || 8000}`;
+        const baseUrl= process.env.BASE_URL;
+
         const fileUrl = `${baseUrl}/uploads/documents/${req.file.filename}`;
 
         // create document
