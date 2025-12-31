@@ -32,7 +32,7 @@ const uploadDocument = async (req, res, next) => {
             throw new Error("BASE_URL is not defined in environment variables");
         }
 
-        const fileUrl = `https://learnix-ai-learning-app.onrender.com/uploads/documents/${req.file.filename}`;
+        const fileUrl = `https://learnix-ai-learning-app.vercel.app/uploads/documents/${req.file.filename}`;
 
         // create document
         const document = await Document.create({
