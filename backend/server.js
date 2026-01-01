@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
-import path from 'path';
-import { fileURLToPath } from 'url';
+// import path from 'path';
+// import { fileURLToPath } from 'url';
 
 
 // import userRoutes from './routes/userRoutes.js';
@@ -19,8 +19,8 @@ import progressRoutes from "./routes/progressRoutes.js";
 dotenv.config();
 
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 // const _dirname=path.resolve();
 
 const app = express();
@@ -56,7 +56,7 @@ app.use("/api/progress",progressRoutes);
 
 // server uploads folder 
 // app.use("/uploads",express.static(path.join(__dirname,"uploads")));
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+// app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 
 // app.use(express.static(path.join(_dirname,"/frontend/dist")));
