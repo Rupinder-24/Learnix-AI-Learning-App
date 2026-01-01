@@ -61,7 +61,9 @@ const DocumentListPage = () => {
     const formData=new FormData();
     formData.append("file",uploadFile);
     formData.append("title",uploadTitle);
+    
     try {
+      
       await documentService.uploadDocument(formData);
       toast.success("Document uploaded successfully");
       setIsUploadModalOpen(false);

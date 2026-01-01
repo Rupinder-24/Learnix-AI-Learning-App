@@ -397,7 +397,7 @@ import cloudinary from "../config/cloudinary.js";
 ====================================================== */
 const uploadDocument = async (req, res, next) => {
   try {
-    if (!req.file) {
+    if (!req.file?.cloudinary) {
       return res.status(400).json({
         success: false,
         message: "Please upload a PDF file",
@@ -415,16 +415,14 @@ const uploadDocument = async (req, res, next) => {
     const document = await Document.create({
       userId: req.user._id,
       title,
-      fileName: req.file.originalname,
-      filePath: req.file.path,       // ✅ Cloudinary URL
-      publicId: req.file.filename,   // ✅ Cloudinary publicId
-      fileSize: req.file.size,
+      fileName: req.file.cloudinary.originalName,
+      filePath: req.file.cloudinary.url,      // ✅ Cloudinary URL
+      publicId: req.file.cloudinary.publicId, // ✅ Cloudinary publicId
+      fileSize: req.file.cloudinary.size,
       status: "processing",
     });
 
-    // ❗ IMPORTANT:
-    // Do NOT process PDF here (causes 502 on Render)
-    // Move PDF parsing to a background worker later
+    // ❗ DO NOT parse PDF here (avoids 502 on Render)
 
     res.status(201).json({
       success: true,
@@ -436,6 +434,7 @@ const uploadDocument = async (req, res, next) => {
     next(error);
   }
 };
+
 
 /* ======================================================
    GET ALL DOCUMENTS
