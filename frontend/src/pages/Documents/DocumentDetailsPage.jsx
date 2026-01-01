@@ -37,18 +37,23 @@ const DocumentDetailsPage = () => {
   },[id]);
 
   // Helper function to get the full pdf Url
-  const getPdfUrl=()=>{
-    if(!document?.data?.filePath) return null;
-    const filePath=document.data.filePath;
+  // const getPdfUrl=()=>{
+  //   if(!document?.data?.filePath) return null;
+  //   const filePath=document.data.filePath;
     
-    if(filePath.startsWith('http://') || filePath.startsWith('https://')){
-      return filePath;
-    }
+  //   if(filePath.startsWith('http://') || filePath.startsWith('https://')){
+  //     return filePath;
+  //   }
 
-    const baseUrl="https://learnix-ai-learning-app.onrender.com";
-    return `${baseUrl}${filePath.startsWith('/') ? '': '/'}${filePath}`;
-  }
+  //   const baseUrl="https://learnix-ai-learning-app.onrender.com";
+  //   return `${baseUrl}${filePath.startsWith('/') ? '': '/'}${filePath}`;
+  // }
 
+  /* ✅ Cloudinary already provides a full URL
+     Never rebuild URLs on frontend */
+  const getPdfUrl = () => {
+    return document?.data?.filePath || null;
+  };
   const renderContent=()=>{
     if(loading){
       return<Spinner/>

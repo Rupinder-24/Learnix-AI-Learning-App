@@ -13,7 +13,7 @@ import upload from "../middleware/upload.js";
 const router=express.Router();
 
 router.use(protect);
-router.post("/upload",upload.single('file'),uploadDocument);
+router.post("/upload",upload.single('document'),uploadDocument);
 
 router.get("/",getDocuments);
 router.get("/:id",getDocument);
