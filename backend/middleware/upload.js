@@ -1,16 +1,17 @@
 import multer from "multer";
-import { CloudinaryStorage } from "multer-storage-cloudinary";
+import multerStorage from "multer-storage-cloudinary";
 import cloudinary from "../config/cloudinary.js";
+
+const { CloudinaryStorage } = multerStorage;
 
 const storage = new CloudinaryStorage({
   cloudinary,
   params: {
     folder: "documents",
-    resource_type: "raw", // IMPORTANT for PDF, DOCX
+    resource_type: "raw", // required for PDFs
     allowed_formats: ["pdf"],
-    public_id: (req, file) => {
-      return `${Date.now()}-${file.originalname}`;
-    },
+    public_id: (req, file) =>
+      `${Date.now()}-${file.originalname}`,
   },
 });
 
