@@ -1,34 +1,25 @@
-import cloudinary from "../config/cloudinary.js";
+import multer from "multer";
 
-export const uploadToCloudinary = async (req, res, next) => {
-  if (!req.file) return next();
+const storage = multer.memoryStorage();
 
-  try {
-    const result = await new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        {
-          folder: "documents",
-          resource_type: "raw", // PDFs
-        },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
-      );
+const fileFilter = (req, file, cb) => {
+    const allowedTypes = [
 
-      stream.end(req.file.buffer);
-    });
+        "application/pdf",
 
-    // 🔥 Normalize Cloudinary response
-    req.file.cloudinary = {
-      url: result.secure_url,
-      publicId: result.public_id,
-      size: result.bytes,
-      originalName: req.file.originalname,
-    };
+    ];
 
-    next();
-  } catch (err) {
-    next(err);
-  }
+    if (allowedTypes.includes(file.mimetype)) {
+        cb(null, true);
+    } else {
+        cb(new Error("Unsupported file type"), false);
+    }
 };
+
+const upload = multer({
+    storage,
+    limits: { fileSize: 10 * 1024 * 1024 }, // 5MB
+    fileFilter,
+});
+
+export default upload;
