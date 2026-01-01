@@ -195,7 +195,7 @@ const FlashcardPage = () => {
 
             (flashcards.length > 0 ? (
               <>
-                <Button onClick={() => setIsDeleteModalopen(true)}
+                <Button onClick={() => setIsDeleteModalOpen(true)}
                   disabled={deleting}
                 >
                   <Trash2 size={16} /> Delete Set

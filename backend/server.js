@@ -55,16 +55,18 @@ app.use("/api/progress",progressRoutes);
 // app.use("/api/reports",reportRoutes);
 
 // server uploads folder 
-app.use("/uploads",express.static(path.join(__dirname,"uploads")));
+// app.use("/uploads",express.static(path.join(__dirname,"uploads")));
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+
 
 // app.use(express.static(path.join(_dirname,"/frontend/dist")));
 
 
 
-app.get("/", (req, res) => {
-  res.json({success: true});
+// app.get("/", (req, res) => {
+//   res.json({success: true});
   
-});
+// });
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 8000;
