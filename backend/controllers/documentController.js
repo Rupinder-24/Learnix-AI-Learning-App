@@ -396,8 +396,8 @@ import cloudinary from "../config/cloudinary.js";
    UPLOAD DOCUMENT (SAFE – NO SERVER CRASH)
 ====================================================== */
 const uploadDocument = async (req, res, next) => {
-  try {
-    if (!req.file?.cloudinary) {
+   try {
+    if (!req.file) {
       return res.status(400).json({
         success: false,
         message: "Please upload a PDF file",
@@ -412,25 +412,42 @@ const uploadDocument = async (req, res, next) => {
       });
     }
 
+    // ✅ STEP 1: Create DB record immediately
     const document = await Document.create({
       userId: req.user._id,
       title,
-      fileName: req.file.cloudinary.originalName,
-      filePath: req.file.cloudinary.url,      // ✅ Cloudinary URL
-      publicId: req.file.cloudinary.publicId, // ✅ Cloudinary publicId
-      fileSize: req.file.cloudinary.size,
+      fileName: req.file.originalname,
+      filePath: "",      // will update later
+      publicId: "",
+      fileSize: req.file.size,
       status: "processing",
     });
 
-    // ❗ DO NOT parse PDF here (avoids 502 on Render)
-
+    // ✅ STEP 2: Respond immediately (NO TIMEOUT)
     res.status(201).json({
       success: true,
       data: document,
-      message: "Document uploaded successfully",
+      message: "Document received and processing",
     });
+
+    // ✅ STEP 3: Upload to Cloudinary AFTER response
+    uploadToCloudinaryAsync(req.file)
+      .then(async (result) => {
+        await Document.findByIdAndUpdate(document._id, {
+          filePath: result.secure_url,
+          publicId: result.public_id,
+          fileSize: result.bytes,
+          status: "ready",
+        });
+      })
+      .catch(async (err) => {
+        console.error("Cloudinary upload failed:", err);
+        await Document.findByIdAndUpdate(document._id, {
+          status: "failed",
+        });
+      });
+
   } catch (error) {
-    console.error(error);
     next(error);
   }
 };

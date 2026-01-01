@@ -10,11 +10,11 @@ import {
 import protect from "../middleware/auth.js"
 // import upload from '../config/multer.js';
 import upload from "../middleware/upload.js";
-import {uploadToCloudinary } from "../middleware/cloudinaryUpload.js";
+// import {uploadToCloudinary } from "../middleware/cloudinaryUpload.js";
 const router=express.Router();
 
 router.use(protect);
-router.post("/upload",upload.single('file'),uploadToCloudinary,uploadDocument);
+router.post("/upload",upload.single('file'),uploadDocument);
 
 router.get("/",getDocuments);
 router.get("/:id",getDocument);
