@@ -16,9 +16,17 @@ const storage = cloudinaryStorage({
 
 const upload = multer({
   storage,
-  limits: {
-    fileSize: 20 * 1024 * 1024, // 20 MB
+  limits: { fileSize: 20 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype !== "application/pdf") {
+      cb(new Error("Only PDF files are allowed"));
+    } else {
+      cb(null, true);
+    }
   },
 });
+
+console.log("Cloudinary ready:", !!cloudinary.uploader);
+
 
 export default upload;

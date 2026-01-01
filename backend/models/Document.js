@@ -1,82 +1,159 @@
+// import mongoose from "mongoose";
+
+// const documentSchema = new mongoose.Schema({
+//     userId: {
+//         type: mongoose.Schema.Types.ObjectId,
+//         ref: 'User',
+//         required: true
+//     },
+//     title: {
+//         type: String,
+//         trim: true,
+//         required: [true, 'Please provide a document title']
+
+//     },
+//     fileName: {
+//         type: String,
+//         required: true
+
+//     },
+//     filePath: {
+//         type: String,
+//         required: true
+
+//     },
+//     publicId: {
+//         type: String, // REQUIRED for Cloudinary
+//         required: true,
+//     },
+//     fileSize: {
+//         type: Number,
+//         required: true
+
+//     },
+//     extractedText: {
+//         type: String,
+//         default: ''
+
+//     },
+
+
+//     chunks: [{
+//         content: {
+//             type: String,
+//             required: true,
+//         },
+//         pageNumber: {
+//             type: Number,
+//             default: 0
+
+//         },
+//         chunkIndex: {
+//             type: Number,
+//             required: true
+//         },
+
+
+//     }],
+//     uploadDate: {
+//         type: Date,
+//         default: Date.now
+//     },
+//     lastAccessed: {
+//         type: Date,
+//         default: Date.now
+//     },
+//     status: {
+//         type: String,
+//         enum: ['processing', 'ready', 'failed'],
+//         default: 'processing'
+//     },
+
+
+// }, { timestamps: true }
+// );
+
+// // Index faster queries
+
+// documentSchema.index({ userId: 1, documentId: 1 });
+
+// const Document = mongoose.model("Document", documentSchema);
+
+// export default Document;
+
+
+
+
 import mongoose from "mongoose";
 
-const documentSchema = new mongoose.Schema({
+const documentSchema = new mongoose.Schema(
+  {
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
+
     title: {
-        type: String,
-        trim: true,
-        required: [true, 'Please provide a document title']
-
+      type: String,
+      trim: true,
+      required: [true, "Please provide a document title"],
     },
+
     fileName: {
-        type: String,
-        required: true
-
+      type: String,
+      required: true,
     },
+
     filePath: {
-        type: String,
-        required: true
-
+      type: String, // Cloudinary URL
+      required: true,
     },
+
     publicId: {
-        type: String, // REQUIRED for Cloudinary
-        required: true,
+      type: String, // Cloudinary publicId
+      required: true,
     },
+
     fileSize: {
-        type: Number,
-        required: true
-
+      type: Number, // bytes
+      required: true,
     },
+
     extractedText: {
-        type: String,
-        default: ''
-
+      type: String,
+      default: "",
     },
 
+    chunks: [
+      {
+        content: { type: String, required: true },
+        pageNumber: { type: Number, default: 0 },
+        chunkIndex: { type: Number, required: true },
+      },
+    ],
 
-    chunks: [{
-        content: {
-            type: String,
-            required: true,
-        },
-        pageNumber: {
-            type: Number,
-            default: 0
-
-        },
-        chunkIndex: {
-            type: Number,
-            required: true
-        },
-
-
-    }],
     uploadDate: {
-        type: Date,
-        default: Date.now
+      type: Date,
+      default: Date.now,
     },
+
     lastAccessed: {
-        type: Date,
-        default: Date.now
+      type: Date,
+      default: Date.now,
     },
+
     status: {
-        type: String,
-        enum: ['processing', 'ready', 'failed'],
-        default: 'processing'
+      type: String,
+      enum: ["processing", "ready", "failed"],
+      default: "processing",
     },
-
-
-}, { timestamps: true }
+  },
+  { timestamps: true }
 );
 
-// Index faster queries
-
-documentSchema.index({ userId: 1, documentId: 1 });
+// ✅ Correct index
+documentSchema.index({ userId: 1 });
 
 const Document = mongoose.model("Document", documentSchema);
-
 export default Document;
