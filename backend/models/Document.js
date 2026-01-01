@@ -27,7 +27,7 @@ const documentSchema = new mongoose.Schema({
         required: true,
     },
     fileSize: {
-        type: String,
+        type: Number,
         required: true
 
     },
