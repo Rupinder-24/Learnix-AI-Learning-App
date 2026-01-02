@@ -1,8 +1,7 @@
 // import Document from "../models/Document.js"
 // import Flashcard from "../models/Flashcard.js"
 // import Quiz from "../models/Quiz.js"
-// import { extractTextFromPDF } from "../utils/pdfParser.js"
-// import { chunkText } from "../utils/textChunker.js"
+
 // import fs from "fs/promises"
 // import mongoose from "mongoose"
 // import cloudinary from "../config/cloudinary.js";
@@ -108,32 +107,32 @@
 
 
 // // helper function to process pdf
-// // const processPDF = async (documentId, filePath) => {
-// //     try {
-// //         const { text } = await extractTextFromPDF(filePath);
+// const processPDF = async (documentId, filePath) => {
+//     try {
+//         const { text } = await extractTextFromPDF(filePath);
 
-// //         // create chunk
-// //         const chunks = chunkText(text, 500, 50);
+//         // create chunk
+//         const chunks = chunkText(text, 500, 50);
 
-// //         // update document
-// //         await Document.findByIdAndUpdate(documentId, {
-// //             extractedText: text,
-// //             chunks: chunks,
-// //             status: 'ready'
-// //         });
+//         // update document
+//         await Document.findByIdAndUpdate(documentId, {
+//             extractedText: text,
+//             chunks: chunks,
+//             status: 'ready'
+//         });
 
-// //         console.log(`Document ${documentId} processed successfully`);
+//         console.log(`Document ${documentId} processed successfully`);
 
 
-// //     } catch (error) {
-// //         console.error(`Error processing document ${documentId}`, error);
-// //         await Document.findByIdAndUpdate(documentId, {
-// //             status: "failed"
+//     } catch (error) {
+//         console.error(`Error processing document ${documentId}`, error);
+//         await Document.findByIdAndUpdate(documentId, {
+//             status: "failed"
 
-// //         });
+//         });
 
-// //     }
-// // };
+//     }
+// };
 
 // const processPDF = async (documentId, fileUrl) => {
 //   try {
@@ -388,15 +387,24 @@
 import Document from "../models/Document.js";
 import Flashcard from "../models/Flashcard.js";
 import Quiz from "../models/Quiz.js";
+import { extractTextFromPDF } from "../utils/pdfParser.js"
+import { chunkText } from "../utils/textChunker.js"
 
 import mongoose from "mongoose";
 import cloudinary from "../config/cloudinary.js";
+import { uploadPdfToCloudinary } from "../utils/cloudinaryUpload.js";
 
 /* ======================================================
    UPLOAD DOCUMENT (SAFE – NO SERVER CRASH)
 ====================================================== */
 const uploadDocument = async (req, res, next) => {
-   try {
+  try {
+    // 🔐 Auth check
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // 📄 File check
     if (!req.file) {
       return res.status(400).json({
         success: false,
@@ -405,33 +413,33 @@ const uploadDocument = async (req, res, next) => {
     }
 
     const { title } = req.body;
-    if (!title) {
+    if (!title || !title.trim()) {
       return res.status(400).json({
         success: false,
         message: "Please provide document title",
       });
     }
 
-    // ✅ STEP 1: Create DB record immediately
+    // ✅ Step 1: Create DB record immediately
     const document = await Document.create({
       userId: req.user._id,
       title,
       fileName: req.file.originalname,
-      filePath: "",      // will update later
+      filePath: "",
       publicId: "",
       fileSize: req.file.size,
       status: "processing",
     });
 
-    // ✅ STEP 2: Respond immediately (NO TIMEOUT)
+    // ✅ Step 2: Respond immediately (NO TIMEOUT)
     res.status(201).json({
       success: true,
       data: document,
       message: "Document received and processing",
     });
 
-    // ✅ STEP 3: Upload to Cloudinary AFTER response
-    uploadToCloudinaryAsync(req.file)
+    // ✅ Step 3: Upload to Cloudinary AFTER response
+    uploadPdfToCloudinary(req.file.buffer)
       .then(async (result) => {
         await Document.findByIdAndUpdate(document._id, {
           filePath: result.secure_url,
@@ -451,6 +459,34 @@ const uploadDocument = async (req, res, next) => {
     next(error);
   }
 };
+
+const processPDF = async (documentId, filePath) => {
+    try {
+        const { text } = await extractTextFromPDF(filePath);
+
+        // create chunk
+        const chunks = chunkText(text, 500, 50);
+
+        // update document
+        await Document.findByIdAndUpdate(documentId, {
+            extractedText: text,
+            chunks: chunks,
+            status: 'ready'
+        });
+
+        console.log(`Document ${documentId} processed successfully`);
+
+
+    } catch (error) {
+        console.error(`Error processing document ${documentId}`, error);
+        await Document.findByIdAndUpdate(documentId, {
+            status: "failed"
+
+        });
+
+    }
+};
+
 
 
 /* ======================================================

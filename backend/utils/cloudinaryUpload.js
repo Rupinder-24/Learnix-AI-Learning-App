@@ -1,13 +1,11 @@
 import cloudinary from "../config/cloudinary.js";
 
-export const uploadToCloudinaryAsync = async (file) => {
-  if (!file) return null;
-
+export const uploadPdfToCloudinary = async (fileBuffer) => {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
         folder: "documents",
-        resource_type: "raw", // PDFs
+        resource_type: "raw", // important for PDFs
       },
       (error, result) => {
         if (error) reject(error);
@@ -15,6 +13,6 @@ export const uploadToCloudinaryAsync = async (file) => {
       }
     );
 
-    stream.end(file.buffer);
+    stream.end(fileBuffer);
   });
 };
