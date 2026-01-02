@@ -8,9 +8,8 @@ import {
     // updateDocument
 } from '../controllers/documentController.js'
 import protect from "../middleware/auth.js"
-// import upload from '../config/multer.js';
-import upload from "../middleware/upload.js";
-// import {uploadToCloudinary } from "../middleware/cloudinaryUpload.js";
+import upload from '../config/multer.js';
+
 const router=express.Router();
 
 router.use(protect);

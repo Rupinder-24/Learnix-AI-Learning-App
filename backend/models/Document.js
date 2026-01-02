@@ -1,159 +1,54 @@
-// import mongoose from "mongoose";
-
-// const documentSchema = new mongoose.Schema({
-//     userId: {
-//         type: mongoose.Schema.Types.ObjectId,
-//         ref: 'User',
-//         required: true
-//     },
-//     title: {
-//         type: String,
-//         trim: true,
-//         required: [true, 'Please provide a document title']
-
-//     },
-//     fileName: {
-//         type: String,
-//         required: true
-
-//     },
-//     filePath: {
-//         type: String,
-//         required: true
-
-//     },
-//     publicId: {
-//         type: String, // REQUIRED for Cloudinary
-//         required: true,
-//     },
-//     fileSize: {
-//         type: Number,
-//         required: true
-
-//     },
-//     extractedText: {
-//         type: String,
-//         default: ''
-
-//     },
-
-
-//     chunks: [{
-//         content: {
-//             type: String,
-//             required: true,
-//         },
-//         pageNumber: {
-//             type: Number,
-//             default: 0
-
-//         },
-//         chunkIndex: {
-//             type: Number,
-//             required: true
-//         },
-
-
-//     }],
-//     uploadDate: {
-//         type: Date,
-//         default: Date.now
-//     },
-//     lastAccessed: {
-//         type: Date,
-//         default: Date.now
-//     },
-//     status: {
-//         type: String,
-//         enum: ['processing', 'ready', 'failed'],
-//         default: 'processing'
-//     },
-
-
-// }, { timestamps: true }
-// );
-
-// // Index faster queries
-
-// documentSchema.index({ userId: 1, documentId: 1 });
-
-// const Document = mongoose.model("Document", documentSchema);
-
-// export default Document;
-
-
-
-
 import mongoose from "mongoose";
-
 const documentSchema = new mongoose.Schema(
   {
-    userId: {
+    userId:
+    {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
+      ref: 'User',
+      required: true
 
-    title: {
-      type: String,
-      trim: true,
-      required: [true, "Please provide a document title"],
     },
-
+    title:
+    {
+      type: String, trim: true, 
+      required: [true, 'Please provide a document title']
+    },
     fileName: {
       type: String,
-      required: true,
+      required: true
     },
-
     filePath: {
-      type: String, // Cloudinary URL
-      required: true,
+      type: String,
+      required: true
     },
-
-    publicId: {
-      type: String, // Cloudinary publicId
-      required: true,
-    },
-
     fileSize: {
-      type: Number, // bytes
-      required: true,
+      type: String,
+      required: true
     },
-
     extractedText: {
       type: String,
-      default: "",
+      default: ''
     },
-
-    chunks: [
-      {
-        content: { type: String, required: true },
-        pageNumber: { type: Number, default: 0 },
-        chunkIndex: { type: Number, required: true },
+    chunks: [{
+      content: { type: String, required: true, },
+      pageNumber: {
+        type: Number,
+        default: 0
       },
-    ],
-
-    uploadDate: {
-      type: Date,
-      default: Date.now,
-    },
-
-    lastAccessed: {
-      type: Date,
-      default: Date.now,
-    },
-
+      chunkIndex: {
+        type: Number,
+        required: true
+      },
+    }],
+    uploadDate: { type: Date, default: Date.now },
+    lastAccessed: { type: Date, default: Date.now },
     status: {
-      type: String,
-      enum: ["processing", "ready", "failed"],
-      default: "processing",
+      type: String, enum: ['processing', 'ready', 'failed'],
+      default: 'processing'
     },
-  },
-  { timestamps: true }
-);
+  }, { timestamps: true }); // Index faster queries 
 
-// ✅ Correct index
-documentSchema.index({ userId: 1 });
 
+documentSchema.index({ userId: 1, documentId: 1 });
 const Document = mongoose.model("Document", documentSchema);
 export default Document;
