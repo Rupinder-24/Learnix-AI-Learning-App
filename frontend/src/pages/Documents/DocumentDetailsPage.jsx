@@ -83,7 +83,7 @@ const DocumentDetailsPage = () => {
           </a>
         </div>
         <div className='bg-gray-100 p-1'>
-          <iframe
+          {/* <iframe
             src={document.data.filePath}
             className='w-full h-[70vh] bg-white rounded border  border-gray-300'
             title='PDF Viewer'
@@ -91,13 +91,15 @@ const DocumentDetailsPage = () => {
             style={{
               colorScheme: 'light'
             }}
-          />
+          /> */}
           <embed
             src={document.data.filePath}
             className='w-full h-[70vh] bg-white rounded border  border-gray-300'
             type="application/pdf"
             // width="100%"
             // height="600px"
+            title='PDF Viewer'
+            frameBorder="0"
              style={{
               colorScheme: 'light'
             }}
