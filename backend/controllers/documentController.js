@@ -127,8 +127,8 @@ const uploadDocument = async (req, res) => {
 
     // 4️⃣ Save document
     // const fileUrl = `${uploadResult.secure_url}`;
-    const baseUrl = "https://learnix-ai-learning-app.onrender.com";
-    const fileUrl = `${baseUrl}/uploads/documents/${uploadResult.secure_url}`;
+    // const baseUrl = "https://learnix-ai-learning-app.onrender.com";
+    const fileUrl = `${uploadResult.secure_url}`;
     const document = await Document.create({
       userId: req.user._id,
       title,
