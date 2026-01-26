@@ -127,11 +127,13 @@ const uploadDocument = async (req, res) => {
 
     // 4️⃣ Save document
     // const fileUrl = `${uploadResult.secure_url}`;
+    const baseUrl = "https://learnix-ai-learning-app.onrender.com";
+    const fileUrl = `${baseUrl}/uploads/documents/${req.uploadResult.secure_url}`;
     const document = await Document.create({
       userId: req.user._id,
       title,
       fileName: req.file.originalname,
-      filePath:uploadResult.secure_url,
+      filePath:fileUrl,
       publicId: uploadResult.public_id,
       extractedText: text,
       fileSize: req.file.size,
@@ -150,32 +152,32 @@ const uploadDocument = async (req, res) => {
   }
 };
 
-// const processPDF = async (documentId, filePath) => {
-//   try {
-//     const { text } = await extractTextFromPDF(filePath);
+const processPDF = async (documentId, filePath) => {
+  try {
+    const { text } = await extractTextFromPDF(filePath);
 
-//     // create chunk
-//     const chunks = chunkText(text, 500, 50);
+    // create chunk
+    const chunks = chunkText(text, 500, 50);
 
-//     // update document
-//     await Document.findByIdAndUpdate(documentId, {
-//       extractedText: text,
-//       chunks: chunks,
-//       status: 'ready'
-//     });
+    // update document
+    await Document.findByIdAndUpdate(documentId, {
+      extractedText: text,
+      chunks: chunks,
+      status: 'ready'
+    });
 
-//     console.log(`Document ${documentId} processed successfully`);
+    console.log(`Document ${documentId} processed successfully`);
 
 
-//   } catch (error) {
-//     console.error(`Error processing document ${documentId}`, error);
-//     await Document.findByIdAndUpdate(documentId, {
-//       status: "failed"
+  } catch (error) {
+    console.error(`Error processing document ${documentId}`, error);
+    await Document.findByIdAndUpdate(documentId, {
+      status: "failed"
 
-//     });
+    });
 
-//   }
-// };
+  }
+};
 
 
 
