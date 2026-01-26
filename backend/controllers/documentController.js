@@ -120,7 +120,7 @@ const uploadDocument = async (req, res) => {
     
 
     // 2️⃣ Extract text
-    const { text } = await extractTextFromPDF(uploadResult.filePath);
+    const { text } = await extractTextFromPDF(uploadResult.secure_url);
 
     // 3️⃣ Chunk text
     const chunks = chunkText(text, 500, 50);
@@ -128,7 +128,7 @@ const uploadDocument = async (req, res) => {
     // 4️⃣ Save document
     // const fileUrl = `${uploadResult.secure_url}`;
     const baseUrl = "https://learnix-ai-learning-app.onrender.com";
-    const fileUrl = `${baseUrl}/uploads/documents/${req.file.filename}`;
+    const fileUrl = `${baseUrl}/uploads/documents/${uploadResult.secure_url}`;
     const document = await Document.create({
       userId: req.user._id,
       title,
@@ -144,7 +144,7 @@ const uploadDocument = async (req, res) => {
     return res.status(201).json({
       success: true,
       data: document,
-      message: "Document upload successfuly"
+      message: "Document uploaded successfully",
     });
 
   } catch (error) {
