@@ -9,7 +9,7 @@ import {
 } from '../controllers/documentController.js'
 import protect from "../middleware/auth.js"
 import upload from '../config/multer.js';
-
+// import cloudinary from '../config/cloudinary.js';
 const router=express.Router();
 
 router.use(protect);

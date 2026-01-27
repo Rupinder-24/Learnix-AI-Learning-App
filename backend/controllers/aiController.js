@@ -321,7 +321,7 @@ export const getChatHistory = async (req,res,next) => {
         }).select('message');//only retriev the data
 
         if(!chatHistory){
-            return res.status(200).join({
+            return res.status(200).json({
                 success:true,
                 data:[],
                 message:"No chat history found"

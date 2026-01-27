@@ -45,7 +45,7 @@ const DocumentDetailsPage = () => {
       return filePath;
     }
 
-    const baseUrl="https://learnix-ai-learning-app.onrender.com";
+    const baseUrl="http://localhost:8000"; // Adjust based on your backend configuration
     return `${baseUrl}${filePath.startsWith('/') ? '': '/'}${filePath}`;
   }
 

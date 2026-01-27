@@ -1,4 +1,4 @@
-export const BASE_URL ="https://learnix-ai-learning-app.onrender.com";
+export const BASE_URL ="http://localhost:8000";
 // utils/api/paths.js 
 export const API_PATHS = {
     AUTH: {
