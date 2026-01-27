@@ -120,7 +120,7 @@ const uploadDocument = async (req, res) => {
     
 
     // 2️⃣ Extract text
-    const { text } = await extractTextFromPDF(uploadResult.secure_url);
+    const { text } = await extractTextFromPDF(req.file.buffer);
 
     // 3️⃣ Chunk text
     const chunks = chunkText(text, 500, 50);
@@ -133,7 +133,7 @@ const uploadDocument = async (req, res) => {
       userId: req.user._id,
       title,
       fileName: req.file.originalname,
-      filePath:uploadResult.secure_url,
+      filePath:uploadResult.inline_url,
       publicId: uploadResult.public_id,
       extractedText: text,
       fileSize: req.file.size,

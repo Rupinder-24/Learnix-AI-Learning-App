@@ -9,6 +9,7 @@ export const uploadPdfToCloudinary = (buffer) => {
       },
       (error, result) => {
         if (error) return reject(error);
+        result.inline_url = `${result.secure_url}?fl=attachment:false`;
         resolve(result);
       }
     ).end(buffer);
