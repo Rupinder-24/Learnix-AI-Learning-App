@@ -133,7 +133,7 @@ const uploadDocument = async (req, res) => {
       userId: req.user._id,
       title,
       fileName: req.file.originalname,
-      filePath:uploadResult.inline_url,
+      filePath:uploadResult.secure_url,
       publicId: uploadResult.public_id,
       extractedText: text,
       fileSize: req.file.size,
