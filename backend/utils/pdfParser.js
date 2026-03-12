@@ -1,75 +1,39 @@
-import fs from 'fs/promises'
+// utils/pdfParser.js
+import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs';
 
-import axios from "axios";
-// import {PDFParse} from "pdf-parse";
-// // import pdf from "pdf-parse";
-
-
-/**
- * @param {string} filePath - path to the PDF file
- * @returns {Promise<{text:string,numPages:number}>}
- */
-
-// export const extractTextFromPDF=async(filePath)=>{
-//     try {
-//         const dataBuffer=await axios.get(filePath);
-//         // pdf parse expect
-//         const parser=new PDFParse(new Uint8Array(dataBuffer));
-//         const data=await parser.getText();
-
-//         return{
-//             text:data.text,
-//             numPages:data.numPages,
-//             info:data.info,
-//         };
-        
-//     } catch (error) {
-//         console.error("PdF parsing error:",error);
-//         throw new Error("Failed to extract text from Pdf")
-        
-//     }
-// }
-
-
-
-import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
-
-export const extractTextFromPDF = async (filePath) => {
+export const extractTextFromPDF = async (buffer) => {
   try {
-    // 1️⃣ Download PDF
-    const response = await axios.get(filePath, {
-      responseType: "arraybuffer",
-    });
+    if (!Buffer.isBuffer(buffer)) {
+      throw new Error('Expected a Buffer');
+    }
 
-    // 2️⃣ Convert Buffer → Uint8Array (🔴 REQUIRED)
-    const uint8Array = new Uint8Array(response.data);
+    // Convert buffer to Uint8Array — required by pdfjs
+    const uint8Array = new Uint8Array(buffer);
 
-    // 3️⃣ Load PDF
     const loadingTask = pdfjsLib.getDocument({ data: uint8Array });
     const pdf = await loadingTask.promise;
 
-    let text = "";
+    console.log(`📄 PDF loaded: ${pdf.numPages} pages`);
 
-    // 4️⃣ Extract text
+    let fullText = '';
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i);
       const content = await page.getTextContent();
-      text += content.items.map(item => item.str).join(" ") + "\n";
+      const pageText = content.items
+        .map(item => item.str)
+        .join(' ');
+      fullText += pageText + '\n';
     }
 
-    return {
-      text,
-      numPages: pdf.numPages,
-    };
+    if (!fullText.trim()) {
+      throw new Error('No text could be extracted');
+    }
+
+    console.log(`✅ Extracted ${fullText.length} characters`);
+    return { text: fullText.trim() };
 
   } catch (error) {
-    console.error("PDF parsing error:", error);
-    throw new Error("Failed to extract text from Pdf");
+    console.error('PDF parse error:', error.message);
+    throw new Error('Failed to extract text from PDF');
   }
 };
-
-
-
-
-
-

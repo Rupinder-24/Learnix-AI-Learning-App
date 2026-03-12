@@ -9,188 +9,88 @@ import { uploadPdfToCloudinary } from "../utils/cloudinaryUpload.js"
 
 
 
-// upload pdf document (Cloudinary version)
-
-// (async function () {
-//   try {
-//     // Upload a PDF document
-//     const uploadResult = await cloudinary.uploader.upload(
-//       "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-//       {
-//         resource_type: "raw", // 🔴 REQUIRED for PDF
-//         public_id: "sample_pdf",
-//         folder: "learnix/pdfs",
-//       }
-//     );
-
-//     console.log("PDF uploaded:", uploadResult.secure_url);
-
-//     // Access PDF URL
-//     const pdfUrl = cloudinary.url(uploadResult.public_id, {
-//       resource_type: "raw",
-//     });
-
-//     console.log("PDF URL:", pdfUrl);
-
-//   } catch (error) {
-//     console.error("Upload error:", error);
-//   }
-// })();
 
 
 
-// const uploadDocument = async (req, res, next) => {
-//   try {
-//     if (!req.file) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Please upload pdf file",
-//         statusCode: 400
-//       });
-//     }
-//     const { title } = req.body;
-//     if (!title) {
-//       // Delete upload file if no title
-//       await fs.unlink(req.file.path);
-//       return res.status(400).json({ message: "Please provive document title" });
-//     }
-//     // construct the URl to upload file
-//     // const baseUrl = "https://learnix-ai-learning-app.onrender.com";
-//     const baseUrl = "http://localhost:8000";
-//     const fileUrl = `${baseUrl}/uploads/documents/${req.file.filename}`;
-
-//     // create document
-//     const document = await Document.create({
-//       userId: req.user._id,
-//       title,
-//       fileName: req.file.originalname,
-//       filePath: fileUrl,
-//       fileSize: req.file.size,
-//       status: "processing"
-//     })
-//     // Process pdf in background
-//     processPDF(document._id, req.file.path).catch(err => {
-//       console.error('PDF processing error:', err);
-//     });
-//     res.status(201).json({
-//       success: true,
-//       data: document,
-//       message: "Document upload successfuly"
-//     })
 
 
 
-//   } catch (error) {
-//     console.error(error);
-//     // clean up file error
-//     if (req.file) {
-//       await fs.unlink(req.file.path).catch(() => { })
-//     }
-//     next();
-
-//   }
-// }
-
-// upload pdf document (Cloudinary version)
 
 
 
-const uploadDocument = async (req, res) => {
+
+// ─── Upload ──────────────────────────────────────────────────────────────────
+ const uploadDocument = async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ message: "No file uploaded" });
+      return res.status(400).json({ message: 'No file uploaded' });
     }
 
     const { title } = req.body;
     if (!title) {
-      return res.status(400).json({ message: "Title is required" });
+      return res.status(400).json({ message: 'Title is required' });
     }
 
-    // console.log("UPLOAD DEBUG:", {
-    //   size: req.file.size,
-    //   bufferLength: req.file.buffer.length,
-    // });
-    console.log("UPLOAD DEBUG:", {
-      path: req.file.path,
-      size: req.file.size,
-    });
+    const buffer = req.file.buffer;
 
+    if (!buffer || buffer.length === 0) {
+      return res.status(400).json({ message: 'File buffer is empty' });
+    }
 
-    // 1️⃣ Upload to Cloudinary
-    const uploadResult = await uploadPdfToCloudinary(req.file.path);
+    console.log('📄 File received:', req.file.originalname, '|', buffer.length, 'bytes');
 
-    console.log("CLOUDINARY DEBUG:", {
-      bytes: uploadResult.bytes,
-    });
+    // 1️⃣ Upload to Cloudinary + Extract text IN PARALLEL
+    // Both use the same buffer — no HTTP fetching needed
+    const [uploadResult, extractResult] = await Promise.allSettled([
+      uploadPdfToCloudinary(buffer, req.file.originalname),
+      extractTextFromPDF(buffer),
+    ]);
 
+    // 2️⃣ Handle upload result
+    if (uploadResult.status === 'rejected') {
+      console.error('Cloudinary upload failed:', uploadResult.reason);
+      return res.status(500).json({ message: 'Failed to upload to Cloudinary' });
+    }
 
-    // 2️⃣ Extract text
-    // const { text } = await extractTextFromPDF(req.file.buffer);
-    // const text = await extractTextFromPDF(req.file.path);
+    const cloudinaryData = uploadResult.value;
 
-    // 3️⃣ Chunk text
-    const chunks = chunkText(text, 500, 50);
+    // 3️⃣ Handle text extraction result
+    const text   = extractResult.status === 'fulfilled' ? extractResult.value.text : '';
+    const chunks = text ? chunkText(text, 500, 50) : [];
+    const status = extractResult.status === 'fulfilled' ? 'ready' : 'failed';
 
-    // 4️⃣ Save document
-    // const fileUrl = `${uploadResult.secure_url}`;
-    // const baseUrl = "https://learnix-ai-learning-app.onrender.com";
-    // const fileUrl = `${uploadResult.secure_url}`;
+    if (extractResult.status === 'rejected') {
+      console.error('Text extraction failed:', extractResult.reason);
+    }
+
+    // 4️⃣ Save to MongoDB — single write, everything ready
     const document = await Document.create({
-      userId: req.user._id,
+      userId:        req.user._id,
       title,
-      fileName: req.file.originalname,
-      filePath: uploadResult.secure_url,
-      publicId: uploadResult.public_id,
+      fileName:      req.file.originalname,
+      filePath:      cloudinaryData.secure_url,  // Cloudinary URL
+      publicId:      cloudinaryData.public_id,
       extractedText: text,
-      fileSize: req.file.size,
+      fileSize:      req.file.size,
       chunks,
-      status: "processing",
+      status,
     });
-    processPDF(document._id, req.file.path).catch(err => {
-      console.error('PDF processing error:', err);
-    });
+
+    console.log(`✅ Document saved: ${document._id} | status: ${status}`);
 
     return res.status(201).json({
       success: true,
-      data: document,
-      message: "Document uploaded successfully",
+      data:    document,
+      message: status === 'ready'
+        ? 'Document uploaded and processed successfully'
+        : 'Document uploaded but text extraction failed',
     });
 
   } catch (error) {
-    console.error("Upload document error:", error);
-    return res.status(500).json({ message: "Upload failed" });
+    console.error('Upload error:', error.message);
+    return res.status(500).json({ message: 'Upload failed', error: error.message });
   }
 };
-
-const processPDF = async (documentId, filePath) => {
-  try {
-    const { text } = await extractTextFromPDF(filePath);
-
-    // create chunk
-    const chunks = chunkText(text, 500, 50);
-
-    // update document
-    await Document.findByIdAndUpdate(documentId, {
-      extractedText: text,
-      chunks: chunks,
-      status: 'ready'
-    });
-
-    console.log(`Document ${documentId} processed successfully`);
-
-
-  } catch (error) {
-    console.error(`Error processing document ${documentId}`, error);
-    await Document.findByIdAndUpdate(documentId, {
-      status: "failed"
-
-    });
-
-  }
-};
-
-
-
 
 const getDocuments = async (req, res, next) => {
   try {

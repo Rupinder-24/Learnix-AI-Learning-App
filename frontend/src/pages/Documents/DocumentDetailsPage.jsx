@@ -37,27 +37,28 @@ const DocumentDetailsPage = () => {
   }, [id]);
 
   // Helper function to get the full pdf Url
-  const getPdfUrl=()=>{
-    if(!document?.data?.filePath) return null;
-    const filePath=document.data.filePath;
 
-    if(filePath.startsWith('http://') || filePath.startsWith('https://')){
-      return filePath;
+  // ✅ FIXED: moved URL helpers inside a function so they run AFTER document loads
+  const getGoogleViewerUrl = () => {
+    const filePath = document?.data?.filePath;
+    if (!filePath) return null;
+
+    // Already a full URL (Cloudinary)
+    let pdfUrl = filePath;
+    if (!filePath.startsWith('http://') && !filePath.startsWith('https://')) {
+      pdfUrl = `https://learnix-ai-learning-app.onrender.com${filePath.startsWith('/') ? '' : '/'}${filePath}`;
     }
 
-    const baseUrl="https://learnix-ai-learning-app.onrender.com"; // Adjust based on your backend configuration
-    return `${baseUrl}${filePath.startsWith('/') ? '': '/'}${filePath}`;
-  }
-  // const getPdfUrl = () => {
-  //   return document?.data?.filePath || null;
-  // };
+    // Force Cloudinary inline display
+    if (pdfUrl.includes('cloudinary.com')) {
+      pdfUrl = pdfUrl.replace('/raw/upload/', '/raw/upload/fl_attachment:false/');
+    }
 
-  const pdfUrl = getPdfUrl();
+    console.log("PDF URL:", pdfUrl); // ← check this in browser console
+    return `https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`;
+  };
 
-  // ✅ For Cloudinary raw PDFs → use Google Docs viewer (best compatibility)
-  const googleViewerUrl = pdfUrl
-    ? `https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`
-    : null;
+
 
 
   /* ✅ Cloudinary already provides a full URL
@@ -72,14 +73,17 @@ const DocumentDetailsPage = () => {
     if (!document || !document.data || !document.data.filePath) {
       return <div className='text-center p-8'>PDF not available.</div>
     }
+    // ✅ Called here — document is guaranteed to be loaded
+    const googleViewerUrl = getGoogleViewerUrl();
+    
 
-    const pdfUrl = getPdfUrl();
+
 
     return (
       <div className='bg-white border border-gray-300 rounded-lg overflow-hidden shadow-sm'>
         <div className='flex items-center justify-between p-4 bg-gray-50 border-b border-gray-300'>
           <span className='text-sm font-medium text-gray-700'>Document Viewer</span>
-          <a href={pdfUrl}
+          <a href={googleViewerUrl}
             target='_blank'
             rel='noopener noreferrer '
             className='inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium transition-color'
@@ -91,6 +95,7 @@ const DocumentDetailsPage = () => {
         </div>
         <div className='bg-gray-100 p-1'>
           <iframe
+            key={googleViewerUrl}
             src={googleViewerUrl}
             className='w-full h-[70vh] bg-white rounded border  border-gray-300'
             title='PDF Viewer'
@@ -99,7 +104,7 @@ const DocumentDetailsPage = () => {
               colorScheme: 'light'
             }}
           />
-          
+
 
 
         </div>
