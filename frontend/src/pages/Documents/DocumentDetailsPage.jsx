@@ -37,20 +37,27 @@ const DocumentDetailsPage = () => {
   }, [id]);
 
   // Helper function to get the full pdf Url
-  // const getPdfUrl=()=>{
-  //   if(!document?.data?.filePath) return null;
-  //   const filePath=document.data.filePath;
+  const getPdfUrl=()=>{
+    if(!document?.data?.filePath) return null;
+    const filePath=document.data.filePath;
 
-  //   if(filePath.startsWith('http://') || filePath.startsWith('https://')){
-  //     return filePath;
-  //   }
+    if(filePath.startsWith('http://') || filePath.startsWith('https://')){
+      return filePath;
+    }
 
-  //   const baseUrl="https://learnix-ai-learning-app.onrender.com"; // Adjust based on your backend configuration
-  //   return `${baseUrl}${filePath.startsWith('/') ? '': '/'}${filePath}`;
-  // }
-  const getPdfUrl = () => {
-    return document?.data?.filePath || null;
-  };
+    const baseUrl="https://learnix-ai-learning-app.onrender.com"; // Adjust based on your backend configuration
+    return `${baseUrl}${filePath.startsWith('/') ? '': '/'}${filePath}`;
+  }
+  // const getPdfUrl = () => {
+  //   return document?.data?.filePath || null;
+  // };
+
+  const pdfUrl = getPdfUrl();
+
+  // ✅ For Cloudinary raw PDFs → use Google Docs viewer (best compatibility)
+  const googleViewerUrl = pdfUrl
+    ? `https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`
+    : null;
 
 
   /* ✅ Cloudinary already provides a full URL
@@ -84,7 +91,7 @@ const DocumentDetailsPage = () => {
         </div>
         <div className='bg-gray-100 p-1'>
           <iframe
-            src={pdfUrl}
+            src={googleViewerUrl}
             className='w-full h-[70vh] bg-white rounded border  border-gray-300'
             title='PDF Viewer'
             frameBorder="0"

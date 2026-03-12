@@ -1,4 +1,5 @@
 import cloudinary from "../config/cloudinary.js";
+import fs from "fs";
 
 export const uploadPdfToCloudinary = (buffer) => {
   return new Promise((resolve, reject) => {
@@ -15,3 +16,5 @@ export const uploadPdfToCloudinary = (buffer) => {
     ).end(buffer);
   });
 };
+
+

@@ -1,7 +1,7 @@
 import fs from 'fs/promises'
 
 import axios from "axios";
-import {PDFParse} from "pdf-parse";
+// import {PDFParse} from "pdf-parse";
 // // import pdf from "pdf-parse";
 
 
@@ -67,7 +67,6 @@ export const extractTextFromPDF = async (filePath) => {
     throw new Error("Failed to extract text from Pdf");
   }
 };
-
 
 
 

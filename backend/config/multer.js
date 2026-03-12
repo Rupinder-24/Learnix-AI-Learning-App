@@ -1,5 +1,5 @@
 // import multer from "multer";
-// import path from "path"
+import path from "path"
 // import { fileURLToPath } from "url";
 // import fs from 'fs'
 
@@ -39,23 +39,37 @@
 
 // export default upload;
 
-import multer from "multer";
+// import multer from "multer";
 
-const storage = multer.memoryStorage();
+// const storage = multer.memoryStorage();
 
-const upload = multer({
-  storage,
-  limits: {
-    fileSize: 20 * 1024 * 1024, // 20MB
-  },
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype === "application/pdf") {
-      cb(null, true);
-    } else {
-      cb(new Error("Only PDF files are allowed"), false);
-    }
-  },
-});
+// const upload = multer({
+//   storage,
+//   limits: {
+//     fileSize: 20 * 1024 * 1024, // 20MB
+//   },
+//   fileFilter: (req, file, cb) => {
+//     if (file.mimetype === "application/pdf") {
+//       cb(null, true);
+//     } else {
+//       cb(new Error("Only PDF files are allowed"), false);
+//     }
+//   },
+// });
    
 
+// export default upload;
+
+import multer from "multer";
+
+const storage = multer.diskStorage({
+  destination: "uploads/",
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+
+const upload = multer({ storage,limits: {
+    fileSize: 20 * 1024 * 1024, // 20MB
+  }, });
 export default upload;

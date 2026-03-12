@@ -106,21 +106,27 @@ const uploadDocument = async (req, res) => {
       return res.status(400).json({ message: "Title is required" });
     }
 
+    // console.log("UPLOAD DEBUG:", {
+    //   size: req.file.size,
+    //   bufferLength: req.file.buffer.length,
+    // });
     console.log("UPLOAD DEBUG:", {
+      path: req.file.path,
       size: req.file.size,
-      bufferLength: req.file.buffer.length,
     });
 
+
     // 1️⃣ Upload to Cloudinary
-    const uploadResult = await uploadPdfToCloudinary(req.file.buffer);
+    const uploadResult = await uploadPdfToCloudinary(req.file.path);
 
     console.log("CLOUDINARY DEBUG:", {
       bytes: uploadResult.bytes,
     });
-    
+
 
     // 2️⃣ Extract text
-    const { text } = await extractTextFromPDF(req.file.buffer);
+    // const { text } = await extractTextFromPDF(req.file.buffer);
+    // const text = await extractTextFromPDF(req.file.path);
 
     // 3️⃣ Chunk text
     const chunks = chunkText(text, 500, 50);
@@ -133,12 +139,15 @@ const uploadDocument = async (req, res) => {
       userId: req.user._id,
       title,
       fileName: req.file.originalname,
-      filePath:uploadResult.secure_url,
+      filePath: uploadResult.secure_url,
       publicId: uploadResult.public_id,
       extractedText: text,
       fileSize: req.file.size,
       chunks,
       status: "processing",
+    });
+    processPDF(document._id, req.file.path).catch(err => {
+      console.error('PDF processing error:', err);
     });
 
     return res.status(201).json({
